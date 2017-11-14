@@ -1,3 +1,5 @@
+
+sudo: required
 language: android
 jdk: oraclejdk7
 
@@ -6,6 +8,21 @@ android:
     - build-tools-19.0.1
 
 script:
-    - echo "Travis branch is $TRAVIS_BRANCH"
-    - echo "Travis branch is in pull request $TRAVIS_PULL+REQUEST"
-    - mvn clean install
+
+  - mvn clean cobertura:cobertura -Dtest=ExtensionSpiTest#testSpiOnVisitor -DfailIfNoTests=false
+
+
+before_deploy:
+- tar -zcvf coverage-result.tar.gz /home/travis/build/leusonmario/roboguice/target/site/cobertura
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "DNb3xCvW8id1yaAzeKo1PCmlBlQe+26Y5ax1coRpMRHAzpSWTjoF6K1jfz94gJ7rnhM/Ar7aID0Sk7qegXbirsj0eUieX7KFDWBM9xMy6foKBJrOzpNIH07Ak8NJ06txQjfMJRupY1OtmnXQf+H611pqw4k37T4noCQKFQfy1DSMnGc+KdVUyqQm7n1eTzxp1uXUpwcr+aVI1XioHDbe6f+yVgvOJoh632pnT+GvfQmMQ687A0+z3QuOiOtyFhoskfG8YO4c76M3jCidsPJIUehleiqhu5wnbQ1sMCAVqqFsdeAaDX5kTkea+PiVXJ8JqcaHsaHAhQqJ6rRPa9hr3vgePGOHBMuUqdpQB4DnT5e7Ymf/w+4V3e2fSEtWFqpuJ06KuwCzcCTr71BBmCmic5P8cPVskeWAW4iJDk2CdENEFLew3uWfdsa//qi+g2UAlX5kYstwi83vreqni3jVxlSRt5JkcwPXoh0hpXWq8Sgtxsh6EjR7isWW1ssQttpanc1hHdlBxxc1n4OCayIN2lxMMaaPRPLEtbFq8gT09ts97qsfPgQq9RX+ehYpUCWE8bc10FY4JoIHbtz5Aeg77aap5G8HFsYqw9O+okk1PMeio9wD7HBrJtBXMbhQXDlUZQfKp1nkbcOW1WBYMhagCgDPXv5tEZeON2K2C+96Zgk="
+
+  file: coverage-result.tar.gz
+  file_glob: true
+  overwrite: true
+  skip_cleanup: true
+  on:
+    tags: true
